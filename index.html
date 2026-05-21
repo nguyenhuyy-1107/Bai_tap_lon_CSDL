@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Điểm Rèn Luyện</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>HỆ THỐNG QUẢN LÝ ĐIỂM RÈN LUYỆN SINH VIÊN</h1>
+    </header>
+
+    <div class="container">
+
+        <aside class="sidebar">
+            <h2>Danh sách bảng</h2>
+            <ul>
+                <li onclick="loadTable('hoc_sinh')">HOC_SINH</li>
+                <li onclick="loadTable('danh_gia')">DANH_GIA</li>
+                <li onclick="loadTable('diem_ren_luyen')">DIEM_REN_LUYEN</li>
+                <li onclick="loadTable('minh_chung')">MINH_CHUNG</li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <h2 id="tableTitle">Bảng HOC_SINH</h2>
+            <div id="tableContainer"></div>
+        </main>
+
+        <aside class="actions">
+            <h2>Chức năng</h2>
+            <button class="btn add" onclick="addRecord()">➕ Thêm mới</button>
+            <button class="btn edit" onclick="editRecord()">✏️ Sửa</button>
+            <button class="btn delete" onclick="deleteRecord()">🗑️ Xóa</button>
+        </aside>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
