@@ -1,157 +1,79 @@
-let currentTable = 'hoc_sinh';
-let currentMode = 'view';
-let currentHeaders = [];
-let currentRows = [];
+let selectedRowData = null;
 
-// ==================== HIỂN THỊ BẢNG TỪ DATABASE ====================
-async function loadTable(tableName = currentTable) {
-    currentTable = tableName;
-
-    try {
-        const response = await fetch(`getData.php?table=${tableName}`);
-        const result = await response.json();
-
-        if (!result.success) {
-            alert(result.message);
-            return;
-        }
-
-        currentHeaders = result.headers;
-        currentRows = result.rows;
-
-    } catch (error) {
-        console.error("Lỗi kết nối API:", error);
-        alert("Không thể kết nối tới Server/Database!");
-        return;
-    }
-
-    document.getElementById('tableTitle').textContent = 'Bảng ' + currentTable.toUpperCase();
-
-    let html = '<table>';
-
-    // Xây dựng Header tiêu đề
-    html += '<tr>';
-    currentHeaders.forEach(header => {
-        html += `<th>${header}</th>`;
-    });
-
-    if (currentMode === 'delete') {
-        html += '<th>Thao tác</th>';
-    }
-    html += '</tr>';
-
-    // Xây dựng các hàng dữ liệu
-    currentRows.forEach((row) => {
-        html += '<tr>';
-        row.forEach(cell => {
-            if (currentMode === 'edit') {
-                html += `<td contenteditable="true">${cell}</td>`;
-            } else {
-                html += `<td>${cell}</td>`;
-            }
-        });
-
-        // Nếu ở chế độ xóa, truyền giá trị của cột đầu tiên (Khóa chính) vào hàm xóa
-        if (currentMode === 'delete') {
-            html += `
-                <td>
-                    <button onclick="deleteRow('${row[0]}')" 
-                            style="padding:8px 12px; background:#ef4444; color:white; border:none; border-radius:6px; cursor:pointer;">
-                        Xóa
-                    </button>
-                </td>
-            `;
-        }
-        html += '</tr>';
-    });
-
-    html += '</table>';
-
-    if (currentMode === 'edit') {
-        html += `
-            <br>
-            <button onclick="saveEdit()"
-                    style="padding:12px 20px; background:#10b981; color:white; border:none; border-radius:8px; font-size:16px; cursor:pointer;">
-                💾 Lưu thay đổi
-            </button>
-        `;
-    }
-
-    document.getElementById('tableContainer').innerHTML = html;
+// Hàm bắt sự kiện khi người dùng click chọn 1 hàng trong bảng ở giữa
+function rowSelect(rowElement, data, pkField) {
+    // Gỡ bỏ class selected của các dòng đã chọn trước đó
+    const rows = document.querySelectorAll('#dataTable tbody tr');
+    rows.forEach(r => r.classList.remove('selected'));
+    
+    // Thêm class selected làm nổi bật dòng hiện tại
+    rowElement.classList.add('selected');
+    selectedRowData = data;
+    selectedRowData._pkField = pkField; // Lưu giữ tên cột khóa chính
+    
+    // Mở khóa kích hoạt cho nút Sửa dữ liệu và Xóa dữ liệu ở bên phải
+    document.getElementById('btnEdit').classList.add('active-btn');
+    document.getElementById('btnDelete').classList.add('active-btn');
 }
 
-// ==================== THÊM DỮ LIỆU VÀO DATABASE ====================
-async function addRecord() {
-    currentMode = 'view';
-    const newRowData = {};
-
-    for (let i = 0; i < currentHeaders.length; i++) {
-        // Chuyển tên cột thành chữ thường để khớp với tên trường trong MySQL
-        const columnName = currentHeaders[i].toLowerCase(); 
-        const value = prompt(`Nhập ${currentHeaders[i]}:`);
-
-        if (value === null) return; 
-        newRowData[columnName] = value.trim();
-    }
-
-    try {
-        const response = await fetch('insert.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ table: currentTable, data: newRowData })
-        });
-        const result = await response.json();
-        
-        if (result.success) {
-            alert('Đã thêm dữ liệu thành công vào MySQL!');
-            loadTable(); 
-        } else {
-            alert('Lỗi: ' + result.message);
-        }
-    } catch (error) {
-        alert('Không thể kết nối đến server để thêm dữ liệu!');
-    }
+// Bật Modal Form Thêm Mới
+function openAddModal(pkField) {
+    document.getElementById('modalTitle').innerText = "Thêm dữ liệu mới";
+    document.getElementById('formAction').value = "add";
+    document.getElementById('modalForm').reset();
+    
+    // Khi thêm mới, ô nhập khóa chính được phép nhập tự do không bị khóa
+    const pkInput = document.getElementById('input_' + pkField);
+    if(pkInput) pkInput.removeAttribute('readonly');
+    
+    document.getElementById('dataModal').style.display = 'flex';
 }
 
-// ==================== CHẾ ĐỘ XÓA DỮ LIỆU ====================
+// Bật Modal Form Sửa (Tự động map dữ liệu từ dòng đang chọn lên form nhập)
+function openEditModal() {
+    if (!selectedRowData) return;
+    
+    document.getElementById('modalTitle').innerText = "Sửa thông tin trực tiếp";
+    document.getElementById('formAction').value = "edit";
+    
+    // Lặp qua các cặp key-value để đổ ngược dữ liệu vào các thẻ input tương ứng
+    for (let key in selectedRowData) {
+        if (key === '_pkField') continue;
+        const inputElement = document.getElementById('input_' + key);
+        if (inputElement) {
+            inputElement.value = selectedRowData[key];
+        }
+    }
+    
+    // Đóng băng cột khóa chính (Read-only) không cho phép sửa đổi giá trị ID khi UPDATE dữ liệu
+    const pkField = selectedRowData._pkField;
+    const pkInput = document.getElementById('input_' + pkField);
+    if(pkInput) pkInput.setAttribute('readonly', true);
+    
+    document.getElementById('dataModal').style.display = 'flex';
+}
+
+// Hàm đóng Pop-up Modal dữ liệu
+function closeModal() {
+    document.getElementById('dataModal').style.display = 'none';
+}
+
+// Hàm thực thi việc gửi yêu cầu xóa dòng chọn lên hệ thống dữ liệu
 function deleteRecord() {
-    currentMode = 'delete';
-    loadTable();
-}
-
-async function deleteRow(id) {
-    if (confirm(`Bạn có chắc chắn muốn xóa bản ghi có mã "${id}" không?`)) {
-        try {
-            const response = await fetch(`delete.php?table=${currentTable}&id=${id}`);
-            const result = await response.json();
-
-            if (result.success) {
-                alert('Đã xóa dữ liệu thành công!');
-                loadTable(); 
-            } else {
-                alert('Lỗi: ' + result.message);
-            }
-        } catch (error) {
-            alert('Không thể kết nối đến server để xóa!');
-        }
+    if (!selectedRowData) return;
+    const pkField = selectedRowData._pkField;
+    const pkValue = selectedRowData[pkField];
+    
+    if (confirm(`Hệ thống sẽ thực hiện xóa trực tiếp bản ghi có mã [ ${pkValue} ] khỏi cơ sở dữ liệu. Bạn chắc chắn muốn tiếp tục?`)) {
+        document.getElementById('deleteId').value = pkValue;
+        document.getElementById('deleteForm').submit();
     }
 }
 
-// ==================== CHẾ ĐỘ SỬA DỮ LIỆU ====================
-function editRecord() {
-    currentMode = 'edit';
-    loadTable();
+// Tự động đóng modal nếu người dùng click trượt ra khu vực bên ngoài khung form mẫu
+window.onclick = function(event) {
+    const modal = document.getElementById('dataModal');
+    if (event.target == modal) {
+        closeModal();
+    }
 }
-
-function saveEdit() {
-    // Tạm thời hiển thị thông báo, tính năng update cập nhật động MySQL 
-    // cần viết cấu lệnh logic đồng bộ mảng phức tạp hơn.
-    alert('Tính năng lưu chỉnh sửa trực tiếp đang được xử lý nâng cấp hệ thống!');
-    currentMode = 'view';
-    loadTable();
-}
-
-// ==================== KHỞI ĐỘNG TRANG ====================
-window.onload = function () {
-    loadTable('hoc_sinh');
-};
