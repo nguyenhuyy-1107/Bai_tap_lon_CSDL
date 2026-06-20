@@ -2,7 +2,7 @@
 session_start();
 require_once 'db.php';
 
-// Nếu đã đăng nhập rồi thì tự động chuyển hướng vào trang chủ
+// Chuyển hướng vào trang chủ
 if (isset($_SESSION['user'])) {
     header("Location: index.php");
     exit();
@@ -12,7 +12,7 @@ $error_message = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $taiKhoan = $conn->real_escape_string($_POST['taiKhoan']);
-    $matKhau = $_POST['matKhau']; // Ở đây so sánh trực tiếp text thuần theo dữ liệu mẫu bên trên
+    $matKhau = $_POST['matKhau']; 
 
     if (!empty($taiKhoan) && !empty($matKhau)) {
         $sql = "SELECT * FROM TAI_KHOAN WHERE taiKhoan = '$taiKhoan' AND matKhau = '$matKhau'";
@@ -20,7 +20,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($result && $result->num_rows > 0) {
             $user_data = $result->fetch_assoc();
-            // Lưu thông tin vào session
             $_SESSION['user'] = $user_data['taiKhoan'];
             $_SESSION['user_name'] = $user_data['tenHienThi'];
             

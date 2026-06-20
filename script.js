@@ -1,42 +1,37 @@
 let selectedRowData = null;
 
-// Hàm bắt sự kiện khi người dùng click chọn 1 hàng trong bảng ở giữa
+// Chọn hàng hiển thị
 function rowSelect(rowElement, data, pkField) {
-    // Gỡ bỏ class selected của các dòng đã chọn trước đó
     const rows = document.querySelectorAll('#dataTable tbody tr');
     rows.forEach(r => r.classList.remove('selected'));
     
-    // Thêm class selected làm nổi bật dòng hiện tại
     rowElement.classList.add('selected');
     selectedRowData = data;
-    selectedRowData._pkField = pkField; // Lưu giữ tên cột khóa chính
+    selectedRowData._pkField = pkField; 
     
-    // Mở khóa kích hoạt cho nút Sửa dữ liệu và Xóa dữ liệu ở bên phải
     document.getElementById('btnEdit').classList.add('active-btn');
     document.getElementById('btnDelete').classList.add('active-btn');
 }
 
-// Bật Modal Form Thêm Mới
+// Thêm dữ liệu
 function openAddModal(pkField) {
     document.getElementById('modalTitle').innerText = "Thêm dữ liệu mới";
     document.getElementById('formAction').value = "add";
     document.getElementById('modalForm').reset();
     
-    // Khi thêm mới, ô nhập khóa chính được phép nhập tự do không bị khóa
     const pkInput = document.getElementById('input_' + pkField);
     if(pkInput) pkInput.removeAttribute('readonly');
     
     document.getElementById('dataModal').style.display = 'flex';
 }
 
-// Bật Modal Form Sửa (Tự động map dữ liệu từ dòng đang chọn lên form nhập)
+// Sửa dữ liệu
 function openEditModal() {
     if (!selectedRowData) return;
     
     document.getElementById('modalTitle').innerText = "Sửa thông tin trực tiếp";
     document.getElementById('formAction').value = "edit";
     
-    // Lặp qua các cặp key-value để đổ ngược dữ liệu vào các thẻ input tương ứng
     for (let key in selectedRowData) {
         if (key === '_pkField') continue;
         const inputElement = document.getElementById('input_' + key);
@@ -45,7 +40,6 @@ function openEditModal() {
         }
     }
     
-    // Đóng băng cột khóa chính (Read-only) không cho phép sửa đổi giá trị ID khi UPDATE dữ liệu
     const pkField = selectedRowData._pkField;
     const pkInput = document.getElementById('input_' + pkField);
     if(pkInput) pkInput.setAttribute('readonly', true);
@@ -53,12 +47,11 @@ function openEditModal() {
     document.getElementById('dataModal').style.display = 'flex';
 }
 
-// Hàm đóng Pop-up Modal dữ liệu
 function closeModal() {
     document.getElementById('dataModal').style.display = 'none';
 }
 
-// Hàm thực thi việc gửi yêu cầu xóa dòng chọn lên hệ thống dữ liệu
+// Xóa dữ liệu
 function deleteRecord() {
     if (!selectedRowData) return;
     const pkField = selectedRowData._pkField;
@@ -70,7 +63,6 @@ function deleteRecord() {
     }
 }
 
-// Tự động đóng modal nếu người dùng click trượt ra khu vực bên ngoài khung form mẫu
 window.onclick = function(event) {
     const modal = document.getElementById('dataModal');
     if (event.target == modal) {

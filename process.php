@@ -3,12 +3,10 @@ require_once 'db.php';
 
 $message = "";
 
-// Lấy trạng thái bảng hiện tại đang hiển thị, mặc định là bảng đầu tiên
 $current_table = isset($_GET['table']) && array_key_exists($_GET['table'], $tables_config) ? $_GET['table'] : 'HOC_SINH';
 $config = $tables_config[$current_table];
 $pk_field = $config['pk'];
 
-// Xử lý các hành động khi người dùng submit Form tác động trực tiếp lên DB
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $action = $_POST['action'];
     
@@ -51,7 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 }
 
-// Truy vấn lấy dữ liệu mới nhất hiển thị lên bảng ở trung tâm
 $query = "SELECT * FROM $current_table";
 $result = $conn->query($query);
 ?>

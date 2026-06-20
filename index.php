@@ -1,6 +1,5 @@
 <?php 
 session_start();
-// Nếu chưa đăng nhập, bắt buộc quay lại trang login.php
 if (!isset($_SESSION['user'])) {
     header("Location: login.php");
     exit();

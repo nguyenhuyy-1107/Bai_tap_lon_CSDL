@@ -13,7 +13,6 @@ body {
     overflow: hidden;
 }
 
-/* 1. LAYOUT BÊN TRÁI: DANH MỤC BẢNG */
 .sidebar {
     width: 250px;
     background-color: #1e2229;
@@ -48,13 +47,12 @@ body {
     font-weight: bold;
 }
 
-/* 2. LAYOUT Ở GIỮA: NỘI DUNG BẢNG CÓ THANH KÉO NGANG */
 .main-content {
     flex: 1;
     padding: 25px;
     display: flex;
     flex-direction: column;
-    min-width: 0; /* Giúp chống vỡ khung khi dữ liệu bảng quá rộng */
+    min-width: 0; 
 }
 
 .main-content h2 {
@@ -68,14 +66,14 @@ body {
     background: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    overflow: auto; /* Tạo thanh cuộn dọc & kéo ngang khi bảng nhiều cột */
+    overflow: auto; 
     border: 1px solid #e2e8f0;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 800px; /* Ép bảng giữ độ rộng để kích hoạt thanh kéo ngang */
+    min-width: 800px; 
     text-align: left;
 }
 
@@ -83,7 +81,7 @@ th, td {
     padding: 14px 18px;
     border-bottom: 1px solid #edf2f7;
     font-size: 14px;
-    white-space: nowrap; /* Ngăn không cho chữ tự xuống dòng làm xấu bảng */
+    white-space: nowrap;
 }
 
 th {
@@ -93,7 +91,7 @@ th {
     text-transform: uppercase;
     font-size: 12px;
     position: sticky;
-    top: 0; /* Giữ cố định tiêu đề cột khi cuộn dọc xuống dưới */
+    top: 0; 
     z-index: 10;
 }
 
@@ -103,10 +101,9 @@ tr:hover {
 }
 
 tr.selected {
-    background-color: #cbd5e0 !important; /* Đổi màu dòng được người dùng click chọn */
+    background-color: #cbd5e0 !important; 
 }
 
-/* 3. LAYOUT BÊN PHẢI: NÚT TÍNH NĂNG TRỰC TIẾP */
 .action-bar {
     width: 230px;
     background-color: #fff;
@@ -140,19 +137,16 @@ tr.selected {
 .btn-add { background-color: #2b6cb0; color: white; }
 .btn-add:hover { background-color: #1a4975; }
 
-/* Trạng thái mặc định khi chưa click chọn dòng nào dưới bảng: Ẩn mờ tính năng sửa/xóa */
 .btn-edit { background-color: #dd6b20; color: white; opacity: 0.5; pointer-events: none; }
 .btn-delete { background-color: #e53e3e; color: white; opacity: 0.5; pointer-events: none; }
 
-/* Class kích hoạt khi dòng dữ liệu được chọn */
 .active-btn {
     opacity: 1 !important;
     pointer-events: auto !important;
 }
 
-/* 4. GIAO DIỆN CỬA SỔ POP-UP MODAL (CHUẨN 2 CỘT TỪ ẢNH MINH HỌA) */
 .modal {
-    display: none; /* Mặc định ẩn, bật lên bằng JS */
+    display: none; 
     position: fixed;
     z-index: 1000;
     left: 0;
@@ -199,7 +193,6 @@ tr.selected {
 }
 .modal-close:hover { color: #4a5568; }
 
-/* Chia lưới Grid thành 2 cột bằng nhau theo đúng nguyên mẫu giao diện */
 .modal-body {
     padding: 25px;
     display: grid;
